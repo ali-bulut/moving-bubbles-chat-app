@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import socketIO from "socket.io-client";
 
-const socket = socketIO("localhost:3005");
+const socket = socketIO(process.env.REACT_APP_SOCKET_URL);
 
 function App() {
   const [users, setUsers] = useState({});
