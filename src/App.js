@@ -7,6 +7,7 @@ function App() {
   const [users, setUsers] = useState({});
   const [messages, setMessages] = useState([]);
   const [chatMessage, setChatMessage] = useState("");
+  const [tempMessage, setTempMessage] = useState({});
 
   useEffect(() => {
     const username = window.prompt("Please enter your name", "");
@@ -78,6 +79,12 @@ function App() {
     let allMessages = [...messages];
     allMessages.push(data);
     setMessages([...allMessages]);
+
+    setTempMessage(data);
+
+    setTimeout(() => {
+      setTempMessage({});
+    }, 3000);
   });
 
   const sendMessage = () => {
@@ -137,6 +144,22 @@ function App() {
               transitionDuration: "300ms",
             }}
           >
+            {tempMessage.id === user.id && (
+              <p
+                style={{
+                  margin: 0,
+                  position: "absolute",
+                  top: "-24px",
+                  color: "black",
+                  border: "1px solid dimgrey",
+                  paddingRight: "5px",
+                  paddingLeft: "5px",
+                  textAlign: "center",
+                }}
+              >
+                {tempMessage.message}
+              </p>
+            )}
             {user.username}
           </div>
         ))}
