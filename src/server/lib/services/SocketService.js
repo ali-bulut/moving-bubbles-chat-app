@@ -16,9 +16,9 @@ class SocketService {
 
       SocketService.createDisconnectUserEvent(connection, users);
 
-      SocketService.createMoveUserEvent(socket, connection, users);
+      SocketService.createMoveUserEvent(connection, users);
 
-      SocketService.createNewMessageEvent(socket, connection);
+      SocketService.createNewMessageEvent(connection, users);
     });
   };
 
@@ -54,15 +54,22 @@ class SocketService {
     });
   };
 
-  static createMoveUserEvent = (socket, connection, users) => {
+  static createMoveUserEvent = (connection, users) => {
     connection.on("move", ({ x, y }) => {
       try {
         // updating x and y coordinates by using data coming from client
         users[connection.id].position.x = x;
         users[connection.id].position.y = y;
 
+        // to send updated coordinate data to sender along with connection(user) id
+        connection.emit("userMoved", {
+          id: connection.id,
+          x,
+          y,
+        });
+
         // to send updated coordinate data to other connections along with connection(user) id
-        socket.broadcast.emit("userMoved", {
+        connection.broadcast.emit("userMoved", {
           id: connection.id,
           x,
           y,
@@ -73,13 +80,18 @@ class SocketService {
     });
   };
 
-  static createNewMessageEvent = (socket, connection) => {
+  static createNewMessageEvent = (connection, users) => {
     connection.on("newMessage", (message) => {
       // adding connection(user) id to message data
-      const messageData = { id: connection.id, ...message };
+      const messageData = {
+        id: connection.id,
+        username: users[connection.id].username,
+        ...message,
+      };
 
-      // sending new message data to other connections
-      socket.broadcast.emit("newMessage", messageData);
+      // sending new message data to all connections
+      connection.emit("newMessage", messageData);
+      connection.broadcast.emit("newMessage", messageData);
     });
   };
 }
