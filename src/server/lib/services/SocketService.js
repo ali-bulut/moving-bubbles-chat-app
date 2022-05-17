@@ -19,6 +19,8 @@ class SocketService {
       SocketService.createMoveUserEvent(connection, users);
 
       SocketService.createNewMessageEvent(connection, users);
+
+      SocketService.createNewImageEvent(connection, users);
     });
   };
 
@@ -92,6 +94,19 @@ class SocketService {
       // sending new message data to all connections
       connection.emit("newMessage", messageData);
       connection.broadcast.emit("newMessage", messageData);
+    });
+  };
+
+  static createNewImageEvent = (connection, users) => {
+    connection.on("newImage", async (data) => {
+      const imageData = {
+        id: connection.id,
+        username: users[connection.id].username,
+        ...data,
+      };
+
+      connection.emit("newImage", imageData);
+      connection.broadcast.emit("newImage", imageData);
     });
   };
 }

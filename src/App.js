@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import socketIO from "socket.io-client";
 
 const socket = socketIO(process.env.REACT_APP_SOCKET_URL);
@@ -9,13 +9,54 @@ function App() {
   const [chatMessage, setChatMessage] = useState("");
   const [tempMessage, setTempMessage] = useState({});
 
+  const fileRef = useRef();
+
   useEffect(() => {
     const username = window.prompt("Please enter your name", "");
     socket.emit("newUser", { username });
   }, []);
 
+  useEffect(() => {
+    fileRef.current.addEventListener(
+      "change",
+      function (e) {
+        let data = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          let img = {};
+          img.file = event.target.result;
+          img.fileName = data.name;
+
+          const messageData = {
+            image: img,
+          };
+          if (
+            messages.filter((message) => message.image.fileName === data.name)
+              .length <= 0
+          ) {
+            socket.emit("newImage", messageData);
+          }
+        };
+        reader.readAsDataURL(data);
+      },
+      false
+    );
+  }, [fileRef, messages]);
+
   socket.on("activeUsers", (data) => {
     setUsers({ ...data });
+  });
+
+  socket.on("newImage", (imageData) => {
+    if (
+      messages.filter(
+        (message) => message.image.fileName === imageData.image.fileName
+      ).length <= 0
+    ) {
+      const allMessages = [...messages];
+      allMessages.push(imageData);
+      setMessages([...allMessages]);
+    }
   });
 
   socket.on("newUser", (user) => {
@@ -199,7 +240,13 @@ function App() {
               <span style={{ fontWeight: 700 }}>
                 {messageData.username || "[SYSTEM]"}:
               </span>{" "}
-              {messageData.message}
+              {messageData.message || (
+                <img
+                  style={{ width: 100, display: "block" }}
+                  alt={messageData.image.fileName}
+                  src={messageData.image.file}
+                />
+              )}
             </p>
           ))}
         </div>
@@ -211,20 +258,52 @@ function App() {
             height: "50px",
           }}
         >
-          <input
-            type="text"
-            style={{
-              width: "75%",
-              borderRadius: "7px",
-              border: "1px solid #F64F38",
-              paddingLeft: "10px",
-              paddingRight: "10px",
-            }}
-            placeholder="Type here..."
-            value={chatMessage}
-            onChange={(e) => setChatMessage(e.target.value)}
-            onKeyUp={(e) => e.key === "Enter" && sendMessage()}
-          />
+          <div style={{ width: "75%", position: "relative" }}>
+            <input
+              type="text"
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "7px",
+                border: "1px solid #F64F38",
+                paddingLeft: "10px",
+                paddingRight: "10px",
+                position: "absolute",
+              }}
+              placeholder="Type here..."
+              value={chatMessage}
+              onChange={(e) => setChatMessage(e.target.value)}
+              onKeyUp={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <label
+              style={{
+                borderRadius: "7px",
+                border: "1px solid #F64F38",
+                paddingLeft: "10px",
+                paddingRight: "10px",
+                position: "absolute",
+                height: "100%",
+                width: "50px",
+                right: "-22px",
+                top: "1.1px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+            >
+              Upload
+              <input
+                type="file"
+                ref={fileRef}
+                accept="image/*"
+                style={{
+                  display: "none",
+                }}
+              />
+            </label>
+          </div>
+
           <button
             type="button"
             onClick={sendMessage}
