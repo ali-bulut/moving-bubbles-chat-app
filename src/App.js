@@ -31,7 +31,7 @@ function App() {
             image: img,
           };
           if (
-            messages.filter((message) => message.image.fileName === data.name)
+            messages.filter((message) => message.image?.fileName === data.name)
               .length <= 0
           ) {
             socket.emit("newImage", messageData);
@@ -50,7 +50,7 @@ function App() {
   socket.on("newImage", (imageData) => {
     if (
       messages.filter(
-        (message) => message.image.fileName === imageData.image.fileName
+        (message) => message.image?.fileName === imageData.image.fileName
       ).length <= 0
     ) {
       const allMessages = [...messages];
@@ -240,7 +240,8 @@ function App() {
               <span style={{ fontWeight: 700 }}>
                 {messageData.username || "[SYSTEM]"}:
               </span>{" "}
-              {messageData.message || (
+              {messageData.message && messageData.message}
+              {messageData.image && (
                 <img
                   style={{ width: 100, display: "block" }}
                   alt={messageData.image.fileName}
