@@ -21,6 +21,10 @@ function App() {
       "change",
       function (e) {
         let data = e.target.files[0];
+        if (data.size > 1 * 1024 * 1024) {
+          alert("Your image size should be max 1MB.");
+          return;
+        }
         const reader = new FileReader();
         reader.onload = function (event) {
           let img = {};
@@ -41,7 +45,8 @@ function App() {
       },
       false
     );
-  }, [fileRef, messages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileRef]);
 
   socket.on("activeUsers", (data) => {
     setUsers({ ...data });
