@@ -12,7 +12,10 @@ function App() {
   const fileRef = useRef();
 
   useEffect(() => {
-    const username = window.prompt("Please enter your name", "");
+    let username = "";
+    while (!username) {
+      username = window.prompt("Please enter your name", "");
+    }
     socket.emit("newUser", { username });
   }, []);
 
