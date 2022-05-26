@@ -2,8 +2,18 @@
  * This class will contain a set of functions that are related with colorize operations
  */
 class ColorHelper {
-  // TODO: add more colors
-  static colors = ["red", "green", "blue"];
+  static colors = [
+    "red",
+    "green",
+    "blue",
+    "black",
+    "blueviolet",
+    "brown",
+    "cadetblue",
+    "midnightblue",
+    "purple",
+    "orange",
+  ];
 
   /**
    * This helper function generates a random color.
