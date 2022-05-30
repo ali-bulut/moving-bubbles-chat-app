@@ -87,7 +87,7 @@ class SocketService {
       // adding connection(user) id to message data
       const messageData = {
         id: connection.id,
-        username: users[connection.id].username,
+        username: users[connection.id]?.username,
         ...message,
       };
 
@@ -101,7 +101,7 @@ class SocketService {
     connection.on("newImage", async (data) => {
       const imageData = {
         id: connection.id,
-        username: users[connection.id].username,
+        username: users[connection.id]?.username,
         ...data,
       };
 
